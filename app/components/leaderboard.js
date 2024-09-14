@@ -4,7 +4,7 @@ export default function Leaderboard({ users, category }) {
 
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 rounded-xl shadow-xl max-w-md mx-auto">
-      <h2 className="text-4xl font-extrabold text-white mb-6 tracking-wide uppercase">
+      <h2 className="text-2xl font-extrabold text-white mb-6 tracking-wide uppercase">
         {category}
       </h2>
       <ul className="w-full space-y-4">
@@ -22,11 +22,11 @@ export default function Leaderboard({ users, category }) {
                 : "bg-gray-800 text-white shadow-sm"
             }`}
           >
-            <span className="font-semibold text-lg">
+            <span className="font-semibold text-md mr-2">
               {index + 1}. {user.name}
             </span>
             <span className="flex items-center">
-              <span className="font-mono text-lg mr-2">{user.score} pts</span>
+              <span className="font-mono mr-2 text-sm">{user.score} pts</span>
               <span
                 className={`w-3 h-3 rounded-full ${
                   user.isAvailable ? "bg-green-500" : "bg-red-500"
