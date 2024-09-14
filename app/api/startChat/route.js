@@ -123,7 +123,7 @@ async function startVoiceflow(req) {
 
 // Send guest messages
 async function sendGuestChat(jwt, conversationId, messageId, text) {
-  console.log("Sending guest chat message:", text);
+  // console.log("Sending guest chat message:", text);
 
   const response = await fetch(
     `https://api.${environment}/api/v2/webchat/guest/conversations/${conversationId}/members/${messageId}/messages`,
@@ -157,26 +157,33 @@ function connectWebSocket(eventStreamUri, jwt, conversationId, messageId) {
     });
 
     ws.on("message", async (data) => {
-      console.log(`Received message: ${data}`);
+      // console.log(`Received message: ${data}`);
 
-      if (!data) {
+      if (
+        !JSON.parse(data).eventBody.body ||
+        JSON.parse(data).eventBody.sender.id == messageId
+      ) {
         return;
       }
+
       // Parse the incoming message from Genesys
-      const incomingMessage = JSON.parse(data).body;
+      const incomingMessage = JSON.parse(data).eventBody.body;
+      console.log("AGENT: ", incomingMessage);
 
       // Forward the message to Voiceflow
       const voiceflowResponse = await startVoiceflow({
         user: conversationId,
-        action: "launch",
+        action: "text",
+        message: incomingMessage,
       });
 
-      const message = await voiceflowResponse[0]?.payload?.slate?.content[0]
+      const message = await voiceflowResponse[1]?.payload?.slate?.content[0]
         .children[0].text;
 
       if (message) {
         // Send the Voiceflow response back to Genesys
         await sendGuestChat(jwt, conversationId, messageId, message);
+        console.log("CUSTOMER: ", message);
       }
     });
 
@@ -203,13 +210,19 @@ export async function POST(req) {
       await connectWebSocket(eventStreamUri, jwt, conversationId, messageId);
 
       // Send initial messages
-      await sendGuestChat(jwt, conversationId, messageId, "Hello!");
-      await sendGuestChat(
-        jwt,
-        conversationId,
-        messageId,
-        "I am an A.I. customer service training assistant."
-      );
+      const voiceflowResponse = await startVoiceflow({
+        user: conversationId,
+        action: "launch",
+      });
+
+      const message = await voiceflowResponse[0]?.payload?.slate?.content[0]
+        .children[0].text;
+
+      if (message) {
+        // Send the Voiceflow response back to Genesys
+        await sendGuestChat(jwt, conversationId, messageId, message);
+        console.log("CUSTOMER: ", message);
+      }
 
       return new Response(
         JSON.stringify({
