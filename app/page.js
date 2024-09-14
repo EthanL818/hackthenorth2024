@@ -97,6 +97,8 @@ export default function Home() {
     }
   };
 
+  const requeueAgent = async () => {};
+
   // Poll for conversation completion after a message is sent
   useEffect(() => {
     if (chatInfo && !loading) {
@@ -110,9 +112,17 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen">
-        <Leaderboard users={users} />
-        <h1 className="text-2xl font-bold mb-4">Start Genesys Chat</h1>
+      <h1 className="text-4xl items-center m-10 text-center font-bold">
+        Top Call Agents by Customer Archetypes
+      </h1>
+      <div className="flex justify-evenly mb-10">
+        <Leaderboard users={users} category={"Frustrated"} />
+        <Leaderboard users={users} category={"Interested"} />
+        <Leaderboard users={users} category={"Confused"} />
+        <Leaderboard users={users} category={"Neutral"} />
+      </div>
+      <div className="flex flex-col items-center justify-center h-90 ">
+        <h1 className="text-2xl font-bold mb-4 mt-4">Start Genesys Chat</h1>
         <button
           onClick={startChat}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -148,11 +158,19 @@ export default function Home() {
         {conversationData && (
           <div className="mt-4">
             <h2 className="text-xl font-bold">Conversation Data</h2>
-            <pre className="bg-gray-100 p-4 rounded">
+            <pre className="bg-gray-100 p-4 rounded text-black">
               {JSON.stringify(conversationData, null, 2)}
             </pre>
           </div>
         )}
+      </div>
+      <div className="flex justify-center">
+        <button
+          onClick={requeueAgent}
+          className="px-10 py-4 bg-yellow-500 rounded-md m-8 hover:bg-yellow-400"
+        >
+          Requeue Agent
+        </button>
       </div>
     </>
   );
