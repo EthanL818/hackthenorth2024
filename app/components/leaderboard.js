@@ -3,7 +3,7 @@ export default function Leaderboard({ users, category }) {
   const sortedUsers = [...users].sort((a, b) => b.score - a.score);
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-r from-blue-900 via-blue-700 to-blue-500 rounded-xl shadow-xl max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center p-8 bg-customBlue rounded-xl shadow-xl max-w-md mx-auto">
       <h2 className="text-2xl font-extrabold text-white mb-6 tracking-wide uppercase">
         {category}
       </h2>
@@ -11,7 +11,7 @@ export default function Leaderboard({ users, category }) {
         {sortedUsers.map((user, index) => (
           <li
             key={user.name}
-            className={`flex justify-between items-center p-4 rounded-lg transition-all duration-300 transform hover:scale-105
+            className={`flex justify-between items-center p-4 rounded-3xl transition-all duration-300 transform hover:scale-105
             ${
               index === 0
                 ? "bg-yellow-400 text-black shadow-md"
