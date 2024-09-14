@@ -1,7 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
+import Leaderboard from "./components/leaderboard";
 
 export default function Home() {
+  const users = [
+    { name: "User 1", score: 1000 },
+    { name: "User 2", score: 950 },
+    { name: "User 3", score: 900 },
+    { name: "User 4", score: 850 },
+  ];
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [message, setMessage] = useState("");
@@ -102,48 +109,51 @@ export default function Home() {
   }, [chatInfo]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-bold mb-4">Start Genesys Chat</h1>
-      <button
-        onClick={startChat}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        disabled={loading}
-      >
-        {loading ? "Starting Chat..." : "Start Chat"}
-      </button>
+    <>
+      <div className="flex flex-col items-center justify-center h-screen">
+        <Leaderboard users={users} />
+        <h1 className="text-2xl font-bold mb-4">Start Genesys Chat</h1>
+        <button
+          onClick={startChat}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          disabled={loading}
+        >
+          {loading ? "Starting Chat..." : "Start Chat"}
+        </button>
 
-      {response && (
-        <div className="mt-4">
-          <p>{response}</p>
-        </div>
-      )}
+        {response && (
+          <div className="mt-4">
+            <p>{response}</p>
+          </div>
+        )}
 
-      {chatInfo && (
-        <div className="mt-4">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="px-4 py-2 border rounded text-black"
-            placeholder="Type your message"
-          />
-          <button
-            onClick={sendMessage}
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ml-2"
-          >
-            Send Message
-          </button>
-        </div>
-      )}
+        {chatInfo && (
+          <div className="mt-4">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="px-4 py-2 border rounded text-black"
+              placeholder="Type your message"
+            />
+            <button
+              onClick={sendMessage}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ml-2"
+            >
+              Send Message
+            </button>
+          </div>
+        )}
 
-      {conversationData && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold">Conversation Data</h2>
-          <pre className="bg-gray-100 p-4 rounded">
-            {JSON.stringify(conversationData, null, 2)}
-          </pre>
-        </div>
-      )}
-    </div>
+        {conversationData && (
+          <div className="mt-4">
+            <h2 className="text-xl font-bold">Conversation Data</h2>
+            <pre className="bg-gray-100 p-4 rounded">
+              {JSON.stringify(conversationData, null, 2)}
+            </pre>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
