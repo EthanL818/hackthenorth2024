@@ -114,41 +114,62 @@ function connectWebSocket(eventStreamUri) {
 
 // API Route Handler
 export async function POST(req) {
+  const { action, message, jwt, conversationId, messageId } = await req.json();
+
   try {
-    // Start guest chat
-    const chatResponse = await startGuestChat();
-    const { id: conversationId, member, jwt, eventStreamUri } = chatResponse;
-    const messageId = member.id;
+    if (action === "startChat") {
+      // Start guest chat
+      const chatResponse = await startGuestChat();
+      const { id: conversationId, member, jwt, eventStreamUri } = chatResponse;
+      const messageId = member.id;
 
-    // Connect WebSocket
-    await connectWebSocket(eventStreamUri);
+      // Connect WebSocket
+      await connectWebSocket(eventStreamUri);
 
-    // Send initial messages
-    await sendGuestChat(jwt, conversationId, messageId, "Hello!");
-    await sendGuestChat(
-      jwt,
-      conversationId,
-      messageId,
-      "I am an A.I. customer service training assistant."
-    );
-
-    return new Response(
-      JSON.stringify({
-        message: "Chat started successfully",
+      // Send initial messages
+      await sendGuestChat(jwt, conversationId, messageId, "Hello!");
+      await sendGuestChat(
+        jwt,
         conversationId,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+        messageId,
+        "I am an A.I. customer service training assistant."
+      );
+
+      return new Response(
+        JSON.stringify({
+          message: "Chat started successfully",
+          conversationId,
+          jwt,
+          messageId,
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    } else if (action === "sendMessage") {
+      // Send guest message
+      await sendGuestChat(jwt, conversationId, messageId, message);
+
+      return new Response(
+        JSON.stringify({
+          message: "Message sent successfully",
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
   } catch (error) {
-    console.error("Error starting chat:", error);
+    console.error("Error:", error);
     return new Response(
       JSON.stringify({
-        message: "Failed to start chat",
+        message: "Failed to process request",
         error: error.message,
       }),
       {
