@@ -4,8 +4,7 @@ export async function GET(req) {
 
   const environment = "cac1.pure.cloud"; // Genesys environment
   const accessToken =
-    "lCO-Y6USVDTgaA81XHSzJsWD1YOIuBA9syZJ_WTZyIxIBNrcYewCvnORCzQjeMQaLfNvaOJ0oNzD-VivYX7EJw"; // Replace with a valid token
-
+    "lCO-Y6USVDTgaA81XHSzJsWD1YOIuBA9syZJ_WTZyIxIBNrcYewCvnORCzQjeMQaLfNvaOJ0oNzD-VivYX7EJw";
   const url = `https://api.${environment}/api/v2/speechandtextanalytics/conversations/${conversationId}`;
 
   try {

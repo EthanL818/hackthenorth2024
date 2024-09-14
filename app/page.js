@@ -9,6 +9,16 @@ export default function Home() {
     { name: "User 3", score: 900 },
     { name: "User 4", score: 850 },
   ];
+
+  const sentimentTrendColors = {
+    NotCalculated: "text-gray-500",
+    Declining: "text-red-500",
+    SlightlyDeclining: "text-orange-500",
+    NoChange: "text-yellow-500",
+    SlightlyImproving: "text-blue-500",
+    Improving: "text-green-500",
+  };
+
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [message, setMessage] = useState("");
@@ -19,21 +29,20 @@ export default function Home() {
   const startChat = async () => {
     setLoading(true);
 
+    // Reset chatInfo and conversationData to allow starting a new chat
+    setChatInfo(null);
+    setConversationData(null);
+
     try {
       const res = await fetch("/api/startChat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "startChat" }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to start chat");
-      }
+      if (!res.ok) throw new Error("Failed to start chat");
 
       const data = await res.json();
-      setResponse("Chat started. Conversation ID: " + data.conversationId);
+      setResponse("Conversation ID: " + data.conversationId);
       setChatInfo({
         jwt: data.jwt,
         conversationId: data.conversationId,
@@ -47,29 +56,19 @@ export default function Home() {
     }
   };
 
-  // Function to send a message
   const sendMessage = async () => {
-    if (!chatInfo) {
-      alert("Chat not started yet");
-      return;
-    }
-
+    if (!chatInfo) return alert("Chat not started yet");
     try {
       const res = await fetch("/api/startChat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "sendMessage",
           message,
           ...chatInfo,
         }),
       });
-
-      if (!res.ok) {
-        throw new Error("Failed to send message");
-      }
+      if (!res.ok) throw new Error("Failed to send message");
 
       const data = await res.json();
       setResponse("Message sent: " + message);
@@ -79,15 +78,12 @@ export default function Home() {
     }
   };
 
-  // Function to poll for conversation completion
   const fetchConversationData = async (conversationId) => {
     try {
       const res = await fetch(
         `/api/fetchConversationData?conversationId=${conversationId}`
       );
-      if (!res.ok) {
-        throw new Error("Failed to fetch conversation data");
-      }
+      if (!res.ok) throw new Error("Failed to fetch conversation data");
 
       const data = await res.json();
       setConversationData(data);
@@ -97,81 +93,124 @@ export default function Home() {
     }
   };
 
-  const requeueAgent = async () => {};
-
-  // Poll for conversation completion after a message is sent
   useEffect(() => {
-    if (chatInfo && !loading) {
+    if (chatInfo) {
       const interval = setInterval(() => {
         fetchConversationData(chatInfo.conversationId);
-      }, 10000); // Poll every 10 seconds
-
+      }, 5000);
       return () => clearInterval(interval);
     }
   }, [chatInfo]);
 
   return (
-    <>
-      <h1 className="text-4xl items-center m-10 text-center font-bold">
-        Top Call Agents by Customer Archetypes
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-200 p-6">
+      <h1 className="text-3xl font-extrabold mb-6 text-blue-400">
+        Genesys Cloud A.I. Training Assistant
       </h1>
-      <div className="flex justify-evenly mb-10">
-        <Leaderboard users={users} category={"Frustrated"} />
-        <Leaderboard users={users} category={"Interested"} />
-        <Leaderboard users={users} category={"Confused"} />
-        <Leaderboard users={users} category={"Neutral"} />
-      </div>
-      <div className="flex flex-col items-center justify-center h-90 ">
-        <h1 className="text-2xl font-bold mb-4 mt-4">Start Genesys Chat</h1>
-        <button
-          onClick={startChat}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          disabled={loading}
-        >
-          {loading ? "Starting Chat..." : "Start Chat"}
-        </button>
 
-        {response && (
-          <div className="mt-4">
-            <p>{response}</p>
-          </div>
-        )}
+      {conversationData && (
+        <div className="mt-8 mb-8 bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md mx-auto text-center">
+          <h2 className="text-2xl font-bold underline">
+            Conversation Analysis
+          </h2>
+          <p className="mb-8">
+            ID:{" "}
+            <span className="italic">{conversationData.conversation.id}</span>
+          </p>
+          {conversationData.sentimentScore > 0 ? (
+            <div className="mt-4">
+              <h3 className="font-bold text-xl text-green-500">Great Job!</h3>
+              <p className="mb-8">
+                Customer sentiment score was generally positive during the
+                training!
+              </p>
+              <div className="text-center">
+                <h3 className="text-xl font-bold">Sentiment Score</h3>
+                <h2 className="text-3xl text-green-500 font-bold">
+                  +{Math.floor(conversationData.sentimentScore * 100)}
+                </h2>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-4">
+              <h3 className="font-bold text-xl text-red-500">
+                Room for Improvement
+              </h3>
+              <p className="mb-8">
+                Customer sentiment score was negative during the training.
+              </p>
+              <div className="text-center">
+                <h3 className="text-xl font-bold">Sentiment Score</h3>
+                <h2 className="text-3xl text-red-500 font-bold">
+                  {Math.floor(conversationData.sentimentScore * 100)}
+                </h2>
+              </div>
+            </div>
+          )}
 
-        {chatInfo && (
-          <div className="mt-4">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="px-4 py-2 border rounded text-black"
-              placeholder="Type your message"
-            />
-            <button
-              onClick={sendMessage}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ml-2"
-            >
-              Send Message
-            </button>
-          </div>
-        )}
+          {conversationData.sentimentTrendClass != "NotCalculated" ? (
+            <>
+              <p className="mt-8 font-bold text-xl">Sentiment Trend</p>
+              <p
+                className={`text-3xl font-bold ${
+                  sentimentTrendColors[conversationData.sentimentTrendClass]
+                }`}
+              >
+                {conversationData.sentimentTrendClass
+                  .replace(/([A-Z])/g, " $1")
+                  .trim()}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-8 font-bold text-xl">Sentiment Trend</p>
+              <p className="text-3xl text-slate-500 font-bold">N/A</p>
+            </>
+          )}
 
-        {conversationData && (
-          <div className="mt-4">
-            <h2 className="text-xl font-bold">Conversation Data</h2>
-            <pre className="bg-gray-100 p-4 rounded text-black">
-              {JSON.stringify(conversationData, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
-      <div className="flex justify-center">
-        <button
-          onClick={requeueAgent}
-          className="px-10 py-4 bg-yellow-500 rounded-md m-8 hover:bg-yellow-400"
-        >
-          Requeue Agent
-        </button>
-      </div>
-    </>
+          <pre className="bg-gray-700 p-4 rounded-lg mt-4 text-sm text-left">
+            <code>{JSON.stringify(conversationData, null, 2)}</code>
+          </pre>
+        </div>
+      )}
+
+      <button
+        onClick={startChat}
+        className={`px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition ${
+          loading ? "opacity-50 cursor-not-allowed" : ""
+        }`}
+        disabled={loading}
+      >
+        {loading
+          ? "Starting Chat..."
+          : conversationData
+          ? "Start another Chat"
+          : "Start Chat"}
+      </button>
+
+      {chatInfo && !conversationData && (
+        <div className="mt-6 bg-gray-800 p-4 rounded-lg shadow-md w-full max-w-md">
+          <p>{response}</p>
+        </div>
+      )}
+
+      {chatInfo && !conversationData && (
+        <div className="mt-6 flex flex-col gap-3 items-center w-full max-w-md">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-700 bg-gray-800 text-gray-200 rounded-lg"
+            placeholder="Type your message"
+          />
+          <button
+            onClick={sendMessage}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-500 transition"
+          >
+            Send Message
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

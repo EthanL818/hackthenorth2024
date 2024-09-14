@@ -96,16 +96,43 @@ async function sendGuestChat(jwt, conversationId, messageId, text) {
 }
 
 // WebSocket connection
-function connectWebSocket(eventStreamUri) {
+// WebSocket connection
+function connectWebSocket(eventStreamUri, jwt, conversationId, messageId) {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(eventStreamUri);
+
     ws.on("open", () => {
       console.log(`Connected to ${eventStreamUri}`);
       resolve(ws);
     });
-    ws.on("message", (data) => {
+
+    ws.on("message", async (data) => {
       console.log(`Received message: ${data}`);
+
+      // Parse the incoming message from Genesys
+      const incomingMessage = JSON.parse(data).body;
+
+      // Forward the message to Voiceflow
+      const voiceflowResponse = await fetch("/api/startVoiceflow", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: messageId, // Use messageId as the user ID for Voiceflow
+          action: "text", // Sending a text action to Voiceflow
+          message: incomingMessage, // Pass the Genesys message to Voiceflow
+        }),
+      });
+
+      const { action, payload } = await voiceflowResponse.json();
+
+      if (action === "speak" && payload) {
+        // Send the Voiceflow response back to Genesys
+        await sendGuestChat(jwt, conversationId, messageId, payload.message);
+      }
     });
+
     ws.on("error", (err) => {
       reject(err);
     });
@@ -115,6 +142,8 @@ function connectWebSocket(eventStreamUri) {
 // API Route Handler
 export async function POST(req) {
   const { action, message, jwt, conversationId, messageId } = await req.json();
+
+  console.log("Action:", action);
 
   try {
     if (action === "startChat") {
