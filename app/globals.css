@@ -2,34 +2,56 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --markdown-h1-color: #333333; /* Dark grey */
+  --markdown-h2-color: #4f4f4f; /* Medium dark grey */
+  --markdown-h3-color: #666666; /* Medium grey */
+  --markdown-p-color: #2d2d2d; /* Light grey */
+  --markdown-a-color: #808080; /* Medium grey */
+  --markdown-code-bg: #2d2d2d; /* Dark grey */
+  --markdown-code-color: #e2b714; /* Very light grey */
+  --markdown-pre-bg: #2d2d2d; /* Dark grey */
+}
+
+.dark {
+  --markdown-h1-color: #e5e7eb; /* Light grey */
+  --markdown-h2-color: #d1d5db; /* Light grey */
+  --markdown-h3-color: #9ca3af; /* Medium light grey */
+  --markdown-p-color: #f3f4f6; /* Very light grey */
+  --markdown-a-color: #a1a1aa; /* Light grey */
+  --markdown-code-bg: #374151; /* Darker grey */
+  --markdown-code-color: #f9fafb; /* Very light grey */
+  --markdown-pre-bg: #374151; /* Darker grey */
+}
+
 /* markdown-styles.css */
 .markdown h1 {
   font-size: 2rem;
   font-weight: bold;
-  color: #333333; /* Dark grey */
+  color: var(--markdown-h1-color);
 }
 
 .markdown h2 {
   font-size: 1.75rem;
   font-weight: bold;
-  color: #4f4f4f; /* Medium dark grey */
+  color: var(--markdown-h2-color);
 }
 
 .markdown h3 {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #666666; /* Medium grey */
+  color: var(--markdown-h3-color);
 }
 
 .markdown p {
   font-size: 1rem;
-  color: #2d2d2d; /* Light grey */
+  color: var(--markdown-p-color);
   line-height: 1.75;
   margin-bottom: 1rem;
 }
 
 .markdown a {
-  color: #808080; /* Medium grey */
+  color: var(--markdown-a-color);
   text-decoration: underline;
 }
 
@@ -45,14 +67,14 @@
 }
 
 .markdown code {
-  background-color: #2d2d2d; /* Dark grey */
-  color: #e2b714; /* Very light grey */
+  background-color: var(--markdown-code-bg);
+  color: var(--markdown-code-color);
   padding: 0.25rem;
   border-radius: 0.25rem;
 }
 
 .markdown pre {
-  background-color: #2d2d2d; /* Dark grey */
+  background-color: var(--markdown-pre-bg);
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -61,7 +83,6 @@
 .markdown > * {
   margin-bottom: 0.5rem;
 }
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -82,14 +103,15 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
   }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;

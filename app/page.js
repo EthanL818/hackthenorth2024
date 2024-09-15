@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Card,
   CardContent,
   CardHeader,
@@ -26,6 +34,7 @@ import {
   RefreshCw,
   Moon,
   Sun,
+  TrophyIcon,
 } from "lucide-react";
 
 export default function Home() {
@@ -59,6 +68,13 @@ export default function Home() {
     SlightlyImproving: "text-blue-500",
     Improving: "text-green-500",
   };
+
+  const leaderboardData = [
+    { rank: 1, name: "Hayden Azan", score: 1250 },
+    { rank: 2, name: "Ethan Liu", score: 1100 },
+    { rank: 3, name: "Patrick Ye", score: 950 },
+    { rank: 4, name: "Gigi Cheang", score: 800 },
+  ];
 
   const startChat = async () => {
     setLoading(true);
@@ -138,8 +154,8 @@ export default function Home() {
   }, [chatInfo]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center place-content-between px-4">
+    <div className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50 w-full border-b flex items-center border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 place-content-between px-4">
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10 mx-8">
             <h1 className="text-xl font-bold">
@@ -147,7 +163,6 @@ export default function Home() {
             </h1>
           </div>
         </div>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
@@ -169,6 +184,40 @@ export default function Home() {
       <main className="flex-1 mx-5">
         <div className="container mx-auto py-6 md:py-10">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <Card className="lg:col-span-3">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-2xl font-bold">
+                  Monthly Leaderboard
+                </CardTitle>
+                <TrophyIcon className="h-6 w-6 text-yellow-400" />
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">Rank</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead className="text-right">
+                        Sentiment Score
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {leaderboardData.map((user) => (
+                      <TableRow key={user.rank}>
+                        <TableCell className="font-medium">
+                          {user.rank}
+                        </TableCell>
+                        <TableCell>{user.name}</TableCell>
+                        <TableCell className="text-right">
+                          {user.score}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
@@ -177,7 +226,7 @@ export default function Home() {
                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+12,234</div>
+                <div className="text-2xl font-bold">+679</div>
                 <p className="text-xs text-muted-foreground">
                   +19% from last month
                 </p>
@@ -205,9 +254,9 @@ export default function Home() {
                 <RefreshCw className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">+573</div>
+                <div className="text-2xl font-bold">+4</div>
                 <p className="text-xs text-muted-foreground">
-                  +201 since last hour
+                  +0 since last hour
                 </p>
               </CardContent>
             </Card>
@@ -286,7 +335,10 @@ export default function Home() {
                             : "text-red-500"
                         }`}
                       >
-                        {Math.floor(conversationData.sentimentScore * 100)}
+                        {Math.floor(conversationData.sentimentScore * 100)}{" "}
+                        <span className="text-gray-700 dark:text-gray-300">
+                          / 100
+                        </span>{" "}
                       </p>
                     </div>
                     <div>
