@@ -142,7 +142,9 @@ export default function Home() {
       <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center place-content-between px-4">
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10 mx-8">
-            <h1 className="text-xl font-bold">trAInt</h1>
+            <h1 className="text-xl font-bold">
+              tr<span className="font-extrabold text-amber-500">ai</span>nt
+            </h1>
           </div>
         </div>
 
