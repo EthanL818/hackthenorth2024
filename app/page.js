@@ -105,7 +105,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-gray-200 p-6">
       <h1 className="text-3xl font-extrabold mb-6 text-blue-400">
-        Genesys Cloud A.I. Training Assistant
+        GenesysCloud A.I. Training Assistant
       </h1>
 
       {conversationData && (
@@ -152,9 +152,8 @@ export default function Home() {
             <>
               <p className="mt-8 font-bold text-xl">Sentiment Trend</p>
               <p
-                className={`text-3xl font-bold ${
-                  sentimentTrendColors[conversationData.sentimentTrendClass]
-                }`}
+                className={`text-3xl font-bold ${sentimentTrendColors[conversationData.sentimentTrendClass]
+                  }`}
               >
                 {conversationData.sentimentTrendClass
                   .replace(/([A-Z])/g, " $1")
@@ -176,16 +175,15 @@ export default function Home() {
 
       <button
         onClick={startChat}
-        className={`px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition ${
-          loading ? "opacity-50 cursor-not-allowed" : ""
-        }`}
+        className={`px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition ${loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         disabled={loading}
       >
         {loading
           ? "Starting Chat..."
           : conversationData
-          ? "Start another Chat"
-          : "Start Chat"}
+            ? "Start another Chat"
+            : "Start Chat"}
       </button>
 
       {chatInfo && !conversationData && (
