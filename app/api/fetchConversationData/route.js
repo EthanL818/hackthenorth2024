@@ -3,8 +3,7 @@ export async function GET(req) {
   const conversationId = searchParams.get("conversationId");
 
   const environment = "cac1.pure.cloud"; // Genesys environment
-  const accessToken =
-    "lCO-Y6USVDTgaA81XHSzJsWD1YOIuBA9syZJ_WTZyIxIBNrcYewCvnORCzQjeMQaLfNvaOJ0oNzD-VivYX7EJw";
+  const accessToken = process.env.GENESYS_OAUTH_TOKEN;
   const url = `https://api.${environment}/api/v2/speechandtextanalytics/conversations/${conversationId}`;
 
   try {

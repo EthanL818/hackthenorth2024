@@ -195,7 +195,8 @@ function connectWebSocket(eventStreamUri, jwt, conversationId, messageId) {
 
 // API Route Handler
 export async function POST(req) {
-  const { action, message, jwt, conversationId, messageId } = await req.json();
+  const { action, message, jwt, conversationId, messageId, type } =
+    await req.json();
 
   console.log("Action:", action);
 
@@ -209,19 +210,29 @@ export async function POST(req) {
       // Connect WebSocket
       await connectWebSocket(eventStreamUri, jwt, conversationId, messageId);
 
-      // Send initial messages
-      const voiceflowResponse = await startVoiceflow({
+      await startVoiceflow({
         user: conversationId,
         action: "launch",
       });
 
-      const message = await voiceflowResponse[0]?.payload?.slate?.content[0]
+      // Send initial messages
+      const voiceflowResponse = await startVoiceflow({
+        user: conversationId,
+        action: "text",
+        message: type.toLowerCase(),
+      });
+
+      const message = await voiceflowResponse[1]?.payload?.slate?.content[0]
         .children[0].text;
+
+      console.log(
+        util.inspect(voiceflowResponse, { showHidden: false, depth: null })
+      );
 
       if (message) {
         // Send the Voiceflow response back to Genesys
         await sendGuestChat(jwt, conversationId, messageId, message);
-        console.log("CUSTOMER: ", message);
+        console.log("init CUSTOMER: ", message);
       }
 
       return new Response(
