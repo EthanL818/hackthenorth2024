@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuRadioGroup,
@@ -44,11 +43,14 @@ export default function Home() {
   const [conversationData, setConversationData] = useState(null);
   const [transcriptAnalysis, setTranscriptAnalysis] = useState("");
   const [analysisFetched, setAnalysisFetched] = useState(false);
+  const [conversationId, setConversationId] = useState(null);
   const [position, setPosition] = useState("conflict");
 
   // const { setTheme } = useTheme();
   const setTheme = (theme) =>
     theme === "dark" ? setDarkMode() : setLightMode();
+
+  const notify = () => alert("Request for agent transfer has been sent.");
 
   const setDarkMode = () => {
     document.documentElement.classList.add("dark");
@@ -92,6 +94,7 @@ export default function Home() {
 
       const data = await res.json();
       setResponse("ID: " + data.conversationId);
+      setConversationId(data.conversationId);
       setChatInfo({
         jwt: data.jwt,
         conversationId: data.conversationId,
@@ -115,9 +118,7 @@ export default function Home() {
       const data = await res.json();
       setConversationData(data);
       setResponse("Conversation data fetched.");
-    } catch (error) {
-      console.error("Error fetching conversation data:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchTranscriptAnalysis = async (conversationId) => {
@@ -135,6 +136,55 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching transcript analysis:", error);
     }
+  };
+
+  const getGenesysToken = async () => {
+    try {
+      const res = await fetch("/api/getGenesysAccessToken", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      return res.json().access_token;
+    } catch (error) {
+      console.error("Error fetching Genesys access token:", error);
+    }
+  };
+
+  const switchAgent = async (conversationId) => {
+    if (!conversationId) {
+      console.log("no conversation id");
+      return;
+    }
+    /*
+    try {
+      const TEMP_AGENT_ID = "b292900c-d1ef-41d3-b505-d36f7fb5b0c4";
+      const participants = await fetchConversationData(conversationId);
+      console.log("Participants: ", participants);
+
+      if (participants?.length > 1) {
+        const replaceAgent = participants[1]?.participantId;
+
+        const res = await fetch("/api/switchAgents", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+
+          // new agent hardcoded to transfer to Gigi for the demo
+          body: JSON.stringify({
+            auth: await getGenesysToken(),
+            convo_id: conversationId,
+            new_agent_id: TEMP_AGENT_ID,
+            to_replace: replaceAgent,
+          }),
+        });
+      } else {
+        console.error("No available agent / agent has not interacted yet.");
+        return;
+      }
+    } catch (error) {
+      console.error("Error switching agents:", error);
+    }
+      */
   };
 
   useEffect(() => {
@@ -159,7 +209,7 @@ export default function Home() {
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
           <div className="flex gap-6 md:gap-10 mx-8">
             <h1 className="text-xl font-bold">
-              tr<span className="font-extrabold text-amber-500">ai</span>nt
+              tr<span className="font-extrabold text-orange-600">ai</span>nt
             </h1>
           </div>
         </div>
@@ -283,7 +333,9 @@ export default function Home() {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline">Change A.I. Agent</Button>
+                    <Button variant="outline" className="mr-4">
+                      Change A.I. Agent
+                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuRadioGroup
@@ -302,14 +354,20 @@ export default function Home() {
                     </DropdownMenuRadioGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
+
                 {chatInfo && !conversationData && (
-                  <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
-                    <p className="mb-2">
-                      Request has been sent to Genesys portal, make sure you are
-                      on queue to receive!
-                    </p>
-                    {response}
-                  </div>
+                  <>
+                    <Button variant="destructive" onClick={notify}>
+                      Transfer to Specialized Agent
+                    </Button>
+                    <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
+                      <p className="mb-2">
+                        Request has been sent to Genesys portal, make sure you
+                        are on queue to receive!
+                      </p>
+                      {response}
+                    </div>
+                  </>
                 )}
               </CardContent>
             </Card>
